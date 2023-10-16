@@ -4,7 +4,7 @@ const cookieParser = require('cookie-parser');
 const { errors } = require('celebrate');
 const { celebrate, Joi } = require('celebrate');
 const userRouter = require('./routes/users');
-const moviesRouter = require('./routes/movies');
+const movieRouter = require('./routes/movie');
 const { login, createUser } = require('./controllers/users');
 const NotFoundError = require('./errors/not-found-error');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
@@ -51,7 +51,7 @@ app.post(
 
 app.use(auth);
 app.use('/users', userRouter);
-app.use('/movies', moviesRouter);
+app.use('/movies', movieRouter);
 
 app.use('*', auth, (req, res, next) => {
   next(new NotFoundError('Несуществующий маршрут'));
