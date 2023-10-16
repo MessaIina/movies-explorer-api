@@ -15,6 +15,8 @@ const REG_EXP_DATE = /^\d{4}$/;
 const DEFAULT_ALLOWED_METHODS = 'GET,HEAD,PUT,PATCH,POST,DELETE';
 
 const ALOWED_CORS = [
+  'https://movies.msl.nomoredomainsrocks.ru',
+  'http://movies.msl.nomoredomainsrocks.ru',
 ];
 
 module.exports = {
