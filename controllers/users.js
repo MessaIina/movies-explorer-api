@@ -16,20 +16,15 @@ const getUsers = (req, res, next) => {
 };
 
 const getUserById = (req, res, next) => {
-  User.findById(req.params.userId)
+  User.findById(req.user._id)
     .orFail(new NotFoundError('Пользователь не найден'))
     .then((user) => {
-      res.send(user);
+      res.send({
+        name: user.name,
+        email: user.email,
+      });
     })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(
-          new ValidationError('Передан некорректный идентификатор пользователя'),
-        );
-      } else {
-        next(err);
-      }
-    });
+    .catch(next);
 };
 
 const createUser = (req, res, next) => {
@@ -68,7 +63,10 @@ const updateUser = (req, res, next) => {
   )
     .orFail(new NotFoundError('Пользователь не найден'))
     .then((user) => {
-      res.send(user);
+      res.send({
+        name: user.name,
+        email: user.email,
+      });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -92,9 +90,6 @@ const login = (req, res, next) => {
       );
       res
         .send({
-          name: user.name,
-          about: user.about,
-          avatar: user.avatar,
           email: user.email,
           _id: user._id,
           token,
