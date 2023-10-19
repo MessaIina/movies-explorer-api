@@ -41,7 +41,7 @@ const movieSchema = new mongoose.Schema(
     },
     thumbnail: {
       type: String,
-      required: true,
+      required: [true, 'Поле "Миниатурное изображение постера к фильму" должно быть заполнено'],
       validate: {
         validator: (v) => REG_EXP_LINK.test(v),
         message: 'Некорректная ссылка',
@@ -58,11 +58,11 @@ const movieSchema = new mongoose.Schema(
     },
     nameRU: {
       type: String,
-      required: true,
+      required: [true, 'Поле "Русское название фильма" должно быть заполнено'],
     },
     nameEN: {
       type: String,
-      required: true,
+      required: [true, 'Поле "Английское название фильма" должно быть заполнено'],
     },
   },
   {
