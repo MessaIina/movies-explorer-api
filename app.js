@@ -12,6 +12,7 @@ const { requestLogger, errorLogger } = require('./middlewares/logger');
 const auth = require('./middlewares/auth');
 const cors = require('./middlewares/cors');
 const iternalServerError = require('./errors/internal-server-error');
+const rateLimiter = require('./middlewares/rateLimiterConfig');
 
 const {
   REG_EXP_EMAIL,
@@ -26,6 +27,7 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(requestLogger);
 app.use(cors);
+app.use(rateLimiter);
 
 app.post(
   '/signup',

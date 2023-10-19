@@ -56,12 +56,18 @@ const createUser = (req, res, next) => {
 
 const updateUser = (req, res, next) => {
   const { name, email } = req.body;
-  User.findByIdAndUpdate(
-    req.user._id,
-    { name, email },
-    { new: true, runValidators: true },
-  )
-    .orFail(new NotFoundError('Пользователь не найден'))
+  User.findOne({ email })
+    .then((existingUser) => {
+      if (existingUser && existingUser._id.toString() !== req.user._id.toString()) {
+        throw new ConflictError('Данный email уже занят');
+      } else {
+        return User.findByIdAndUpdate(
+          req.user._id,
+          { name, email },
+          { new: true, runValidators: true },
+        ).orFail(new NotFoundError('Пользователь не найден'));
+      }
+    })
     .then((user) => {
       res.send({
         name: user.name,
