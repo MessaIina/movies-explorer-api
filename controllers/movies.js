@@ -17,10 +17,10 @@ const createMovie = (req, res, next) => {
     duration,
     year,
     description,
-    movieId,
     image,
     trailerLink,
     thumbnail,
+    movieId,
     nameRU,
     nameEN,
   } = req.body;
@@ -31,13 +31,13 @@ const createMovie = (req, res, next) => {
     duration,
     year,
     description,
-    movieId,
     image,
     trailerLink,
     thumbnail,
+    owner,
+    movieId,
     nameRU,
     nameEN,
-    owner,
   })
     .then((movie) => res.status(CREATED).send({
       movie,
