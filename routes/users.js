@@ -1,15 +1,12 @@
-const router = require('express').Router();
+const router = require('express').Router(); // создали роутер
 const { celebrate, Joi } = require('celebrate');
 const { REG_EXP_EMAIL } = require('../utils/constants');
 const {
-  getUsers,
-  getUserById,
   updateUser,
+  getUser,
 } = require('../controllers/users');
 
-router.get('/', getUsers);
-
-router.get('/me', getUserById);
+router.get('/me', getUser);
 
 router.patch(
   '/me',

@@ -1,17 +1,17 @@
-const router = require('express').Router();
+const router = require('express').Router(); // создали роутер
 const { celebrate, Joi } = require('celebrate');
+const { REG_EXP_LINK } = require('../utils/constants');
 const {
-  REG_EXP_IMG,
-  REG_EXP_VID,
-  REG_EXP_DATE,
-} = require('../utils/constants');
-const {
-  getMovies,
+  getAllMovies,
   createMovie,
   deleteMovie,
 } = require('../controllers/movies');
 
-router.get('/', getMovies);
+// GET /movies — возвращает все сохранённые текущим пользователем фильмы
+// POST /movies — создаёт фильм с переданными в теле
+// DELETE /movies/:_id — удаляет сохранённый фильм по id
+
+router.get('/', getAllMovies);
 
 router.post(
   '/',
@@ -20,12 +20,12 @@ router.post(
       country: Joi.string().required(),
       director: Joi.string().required(),
       duration: Joi.number().required(),
-      year: Joi.string().required().pattern(REG_EXP_DATE).max(new Date().getFullYear()),
+      year: Joi.string().required(),
       description: Joi.string().required(),
-      image: Joi.string().required().pattern(REG_EXP_IMG),
-      trailerLink: Joi.string().required().pattern(REG_EXP_VID),
-      thumbnail: Joi.string().required().pattern(REG_EXP_IMG),
       movieId: Joi.number().required(),
+      image: Joi.string().required().pattern(REG_EXP_LINK),
+      trailerLink: Joi.string().required().pattern(REG_EXP_LINK),
+      thumbnail: Joi.string().required().pattern(REG_EXP_LINK),
       nameRU: Joi.string().required(),
       nameEN: Joi.string().required(),
     }),
