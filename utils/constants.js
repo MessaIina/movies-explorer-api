@@ -8,8 +8,8 @@ const REG_EXP_EMAIL = /^(([^<>()[\].,;:\s@"]+(\.[^<>()[\].,;:\s@"]+)*)|(".+"))@(
 const DEFAULT_ALLOWED_METHODS = 'GET,HEAD,PUT,PATCH,POST,DELETE';
 
 const ALOWED_CORS = [
-  'http://movies.msl.nomoredomainsrocks.ru',
   'https://movies.msl.nomoredomainsrocks.ru',
+  'http://movies.msl.nomoredomainsrocks.ru',
 ];
 
 module.exports = {
