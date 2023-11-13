@@ -56,18 +56,8 @@ const createUser = (req, res, next) => {
 
 const updateUser = (req, res, next) => {
   const { name, email } = req.body;
-  User.findOne({ email })
-    .then((existingUser) => {
-      if (existingUser && existingUser._id.toString() !== req.user._id.toString()) {
-        throw new ConflictError('Данный email уже занят');
-      } else {
-        return User.findByIdAndUpdate(
-          req.user._id,
-          { name, email },
-          { new: true, runValidators: true },
-        ).orFail(new NotFoundError('Пользователь не найден'));
-      }
-    })
+  User.findByIdAndUpdate(req.user._id, { name, email }, { new: true })
+    .orFail(new NotFoundError('Ошибка при обновлении данных - пользователь не найден'))
     .then((user) => {
       res.send({
         name: user.name,
@@ -76,7 +66,7 @@ const updateUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new ValidationError('Переданы некорректные данные пользователя'));
+        next(new ValidationError('Переданы некорректные данные'));
       } else {
         next(err);
       }
@@ -96,6 +86,7 @@ const login = (req, res, next) => {
       );
       res
         .send({
+          name: user.name,
           email: user.email,
           _id: user._id,
           token,
