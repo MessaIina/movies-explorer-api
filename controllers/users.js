@@ -5,17 +5,9 @@ const ValidationError = require('../errors/validation-error');
 const ConflictError = require('../errors/conflict-error');
 const NotFoundError = require('../errors/not-found-error');
 const { NODE_ENV, JWT_SECRET } = require('../utils/app.config');
-const {
-  CREATED,
-} = require('../utils/constants');
+const { CREATED_CODE_STATUS } = require('../utils/constants');
 
-const getUsers = (req, res, next) => {
-  User.find({})
-    .then((users) => res.send({ users }))
-    .catch(next);
-};
-
-const getUserById = (req, res, next) => {
+const getUser = (req, res, next) => {
   User.findById(req.user._id)
     .orFail(new NotFoundError('Пользователь не найден'))
     .then((user) => {
@@ -25,33 +17,6 @@ const getUserById = (req, res, next) => {
       });
     })
     .catch(next);
-};
-
-const createUser = (req, res, next) => {
-  const {
-    name, email, password,
-  } = req.body;
-  bcrypt
-    .hash(password, 10)
-    .then((hash) => User.create({
-      name,
-      email,
-      password: hash,
-    }))
-    .then((user) => res.status(CREATED).send({
-      name: user.name,
-      email: user.email,
-      _id: user._id,
-    }))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        next(new ValidationError('Переданы некорректные данные пользователя'));
-      } else if (err.code === 11000) {
-        next(new ConflictError('Данный email уже занят'));
-      } else {
-        next(err);
-      }
-    });
 };
 
 const updateUser = (req, res, next) => {
@@ -73,6 +38,33 @@ const updateUser = (req, res, next) => {
     });
 };
 
+const createUser = (req, res, next) => {
+  const {
+    email, password, name,
+  } = req.body;
+  bcrypt
+    .hash(password, 10)
+    .then((hash) => User.create({
+      email,
+      password: hash,
+      name,
+    }))
+    .then((user) => res.status(CREATED_CODE_STATUS).send({
+      name: user.name,
+      email: user.email,
+      _id: user._id,
+    }))
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new ValidationError('Переданы некорректные данные'));
+      } else if (err.code === 11000) {
+        next(new ConflictError('Данный email уже занят'));
+      } else {
+        next(err);
+      }
+    });
+};
+
 const login = (req, res, next) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
@@ -84,20 +76,18 @@ const login = (req, res, next) => {
           expiresIn: '7d',
         },
       );
-      res
-        .send({
-          name: user.name,
-          email: user.email,
-          _id: user._id,
-          token,
-        });
+      res.send({
+        name: user.name,
+        email: user.email,
+        _id: user._id,
+        token,
+      });
     })
     .catch(next);
 };
 
 module.exports = {
-  getUsers,
-  getUserById,
+  getUser,
   createUser,
   updateUser,
   login,
