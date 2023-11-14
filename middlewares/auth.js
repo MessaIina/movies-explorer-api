@@ -6,7 +6,8 @@ const { NODE_ENV, JWT_SECRET } = require('../utils/app.config');
 module.exports = (req, res, next) => {
   const { authorization } = req.headers;
   if (!authorization || !authorization.startsWith('Bearer ')) {
-    throw new UnauthorizedError('Неверный логин и/или пароль');
+    next(new UnauthorizedError('Необходима авторизация'));
+    return;
   }
   const token = authorization.replace('Bearer ', '');
   let payload;
@@ -16,7 +17,8 @@ module.exports = (req, res, next) => {
       NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
     );
   } catch (err) {
-    throw new UnauthorizedError('Неверный логин и/или пароль');
+    next(new UnauthorizedError('Неверный логин и/или пароль'));
+    return;
   }
   req.user = payload;
   next();

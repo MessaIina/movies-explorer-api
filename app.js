@@ -1,44 +1,41 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
-const { celebrate, Joi } = require('celebrate');
+const cookieParser = require('cookie-parser');
 const { errors } = require('celebrate');
-const helmet = require('helmet');
+const { celebrate, Joi } = require('celebrate');
 const userRouter = require('./routes/users');
 const movieRouter = require('./routes/movie');
-const limiter = require('./middlewares/rateLimiterConfig');
 const { login, createUser } = require('./controllers/users');
 const NotFoundError = require('./errors/not-found-error');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
-const { PORT = 3001 } = require('./utils/app.config');
-const { NODE_ENV, DB_URL } = require('./utils/app.config');
-const { LOCAL_DB_URL } = require('./utils/constants');
 
 const auth = require('./middlewares/auth');
 const cors = require('./middlewares/cors');
-const internalServerError = require('./errors/internal-server-error');
+const iternalServerError = require('./errors/internal-server-error');
+const rateLimiter = require('./middlewares/rateLimiterConfig');
 
 const {
   REG_EXP_EMAIL,
 } = require('./utils/constants');
 
+const { PORT = 3001, DB_URL = 'mongodb://127.0.0.1/bitfilmsdb' } = process.env;
 const app = express();
-mongoose.connect(NODE_ENV === 'production' ? DB_URL : LOCAL_DB_URL);
 
-app.use(helmet());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+mongoose.connect(DB_URL);
+
+app.use(cookieParser());
+app.use(express.json());
 app.use(requestLogger);
 app.use(cors);
-app.use(limiter);
+app.use(rateLimiter);
 
 app.post(
   '/signup',
   celebrate({
     body: Joi.object().keys({
-      email: Joi.string().required().pattern(REG_EXP_EMAIL),
-      password: Joi.string().required().min(8),
       name: Joi.string().min(2).max(30),
+      email: Joi.string().required().pattern(REG_EXP_EMAIL),
+      password: Joi.string().required().min(6),
     }),
   }),
   createUser,
@@ -48,21 +45,24 @@ app.post(
   celebrate({
     body: Joi.object().keys({
       email: Joi.string().required().pattern(REG_EXP_EMAIL),
-      password: Joi.string().required().min(8),
+      password: Joi.string().required().min(6),
     }),
   }),
   login,
 );
 
-app.use('/users', auth, userRouter);
-app.use('/movies', auth, movieRouter);
+app.use(auth);
+app.use('/users', userRouter);
+app.use('/movies', movieRouter);
 
 app.use('*', auth, (req, res, next) => {
   next(new NotFoundError('Несуществующий маршрут'));
 });
 
 app.use(errorLogger);
+
 app.use(errors());
-app.use(internalServerError);
+
+app.use(iternalServerError);
 
 app.listen(PORT);
